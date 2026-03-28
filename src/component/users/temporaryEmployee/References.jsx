@@ -1,0 +1,403 @@
+// import { useForm } from "react-hook-form";
+import ProgressBar from "../../progressBar/ProgressBar";
+import { IoPeopleOutline } from "react-icons/io5";
+import { CiCircleCheck } from "react-icons/ci";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+
+const References = ({ prevStep, nextStep, setFormData, step }) => {
+  const totalSteps = 11;
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    getValues,
+    trigger,
+  } = useForm();
+
+  // Step-wise Next button validation
+  const nextStepHandler = async () => {
+    const result = await trigger();
+
+    if (result) {
+      const allData = getValues();
+
+      setFormData((prev) => {
+        const prevEmployeeInfo = prev.employeeInfo || {};
+
+        // Conditional count logic
+        const terminationStatus = allData.terminationStatus || "No";
+        const manualStatus = allData.terminatedByManualAgreement || "No";
+        const resignationStatus = allData.resignedInsteadOfTerminated || "No";
+
+        return {
+          ...prev,
+          employeeInfo: {
+            ...prevEmployeeInfo,
+
+            terminationInfo: {
+              ...(prevEmployeeInfo.terminationInfo || {}),
+              terminationStatus,
+              terminationCount:
+                terminationStatus === "Yes"
+                  ? Number(allData.terminationCount) || 0
+                  : 0,
+            },
+
+            manualAgreementTermination: {
+              ...(prevEmployeeInfo.manualAgreementTermination || {}),
+              terminatedByManualAgreement: manualStatus,
+              terminationCount:
+                manualStatus === "Yes"
+                  ? Number(allData.manualTerminationCount) || 0
+                  : 0,
+            },
+
+            resignationInsteadOfTermination: {
+              ...(prevEmployeeInfo.resignationInsteadOfTermination || {}),
+              resignedInsteadOfTerminated: resignationStatus,
+              resignationCount:
+                resignationStatus === "Yes"
+                  ? Number(allData.resignationCount) || 0
+                  : 0,
+            },
+
+            explanation: allData.explain || "",
+
+            terminationDetailsOfEmployee: [
+              ...(prevEmployeeInfo.terminationDetailsOfEmployee || []),
+              ...(allData.references || []).map((ref) => ({
+                name: ref.name || "",
+                position: ref.position || "",
+                company: ref.company || "",
+                telephone: ref.telephone || "",
+                occupation: ref.occupation || "",
+                bestTimeToCall: ref.bestTimeToCall || "",
+                workRelation: ref.workRelationship || "",
+                NoOfYearKnown: ref.yearsKnown || "",
+              })),
+            ],
+          },
+        };
+      });
+
+      nextStep?.();
+    } else {
+      console.log("Validation errors:", errors);
+    }
+  };
+
+  const inputWrapperClass =
+    "rounded-md bg-gradient-to-r from-[#8D6851] to-[#D3BFB2] mt-1 p-[1px]";
+  const inputClass =
+    "w-full bg-slate-900 text-white rounded-md py-2 px-3 focus:outline-none focus:ring-0";
+  return (
+    <div>
+      <div className="text-white ">
+        <div className="max-w-7xl mx-auto">
+          {/* Header */}
+          <div className="flex space-x-96 mb-4">
+            <div className="text-sm">
+              <div className="font-bold text-lg mb-2">CBYRAC, INC</div>
+              <div>123 MAIN STREET SUITE 100</div>
+              <div>ANYTOWN, STATE 12345</div>
+              <div>PHONE: 555-555-5555</div>
+              <div>number: info@cbyrac.com</div>
+            </div>
+            <div className="w-24 h-24 bg-white rounded justify-center">
+              <img src="/cbyrac-logo.png" alt="" />
+            </div>
+          </div>
+
+          {/* Title */}
+          <div className="text-center mb-8">
+            <h1 className="text-2xl font-bold mb-2">Employment Application</h1>
+            <p className="text-sm text-gray-300 mb-7">
+              Please fill all forms. Resumes are not a substitute for a
+              completed application
+            </p>
+            {/* progressbar */}
+            <ProgressBar currentStep={step} totalSteps={totalSteps} />
+          </div>
+
+          <form className="rounded-2xl  max-w-7xl mx-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="text-white mb-2 block">
+                  Have you ever been terminated or asked to resign from any job?{" "}
+                  <span className="text-red-500">*</span>
+                </label>
+                <div className={inputWrapperClass}>
+                  <select
+                    {...register("terminationStatus", {
+                      required: "This field is required",
+                    })}
+                    className={inputClass}
+                  >
+                    <option value="">Select</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                  </select>
+                </div>
+                {errors.mayWeContact && (
+                  <p className="text-red-500 text-sm">
+                    {errors.mayWeContact.message}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="text-white mb-2 block">
+                  If Yes how many times? <span className="text-red-500">*</span>
+                </label>
+                <div className={inputWrapperClass}>
+                  <input
+                    type="number"
+                    placeholder="Enter number"
+                    {...register("terminationCount")}
+                    className={inputClass}
+                  />
+                </div>
+                {errors.mayWeContact && (
+                  <p className="text-red-500 text-sm">
+                    {errors.mayWeContact.message}
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="text-white mb-2 block">
+                  Has your employment ever been terminated by mutual agreement?{" "}
+                  <span className="text-red-500">*</span>
+                </label>
+                <div className={inputWrapperClass}>
+                  <select
+                    {...register("terminatedByManualAgreement", {
+                      required: "This field is required",
+                    })}
+                    className={inputClass}
+                  >
+                    <option value="">Select</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                  </select>
+                </div>
+                {errors.mayWeContact && (
+                  <p className="text-red-500 text-sm">
+                    {errors.mayWeContact.message}
+                  </p>
+                )}
+              </div>
+              <div>
+                <label className="text-white mb-2 block">
+                  If Yes how many times? <span className="text-red-500">*</span>
+                </label>
+                <div className={inputWrapperClass}>
+                  <input
+                    type="number"
+                    placeholder="Enter number"
+                    {...register("manualTerminationCount")}
+                    className={inputClass}
+                  />
+                </div>
+                {errors.mayWeContact && (
+                  <p className="text-red-500 text-sm">
+                    {errors.mayWeContact.message}
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="text-white mb-2 block">
+                  Have you ever been given the choice to resign rather than be
+                  terminated? <span className="text-red-500">*</span>
+                </label>
+                <div className={inputWrapperClass}>
+                  <select
+                    {...register("resignedInsteadOfTerminated", {
+                      required: "This field is required",
+                    })}
+                    className={inputClass}
+                  >
+                    <option value="">Select</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                  </select>
+                </div>
+                {errors.mayWeContact && (
+                  <p className="text-red-500 text-sm">
+                    {errors.mayWeContact.message}
+                  </p>
+                )}
+              </div>
+              <div>
+                <label className="text-white mb-2 block">
+                  If Yes how many times? <span className="text-red-500">*</span>
+                </label>
+                <div className={inputWrapperClass}>
+                  <input
+                    type="number"
+                    placeholder="Enter number"
+                    {...register("resignationCount")}
+                    className={inputClass}
+                  />
+                </div>
+                {errors.mayWeContact && (
+                  <p className="text-red-500 text-sm">
+                    {errors.mayWeContact.message}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <div>
+                <label className="text-white mb-2 block">
+                  How much notice did you give when resigning? If none, explain.{" "}
+                  <span className="text-red-500">*</span>
+                </label>
+                <div className={inputWrapperClass}>
+                  <input
+                    type="text"
+                    placeholder="Enter Your Answer "
+                    {...register("explain")}
+                    className={inputClass}
+                  />
+                </div>
+                {errors.mayWeContact && (
+                  <p className="text-red-500 text-sm">
+                    {errors.mayWeContact.message}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <table className="min-w-full border border-[#8D6851] text-white rounded-lg mt-9">
+              <thead>
+                <tr className="bg-slate-900 text-left">
+                  <th className="border border-[#8D6851] px-2 py-2 font-normal text-sm">
+                    NAME
+                  </th>
+                  <th className="border border-[#8D6851] px-4 py-2 font-normal text-sm">
+                    POSITION
+                  </th>
+                  <th className="border border-[#8D6851] px-4 py-2 font-normal text-sm">
+                    COMPANY
+                  </th>
+                  <th className="border border-[#8D6851] px-4 py-2 font-normal text-sm">
+                    TELEPHONE
+                  </th>
+                  <th className="border border-[#8D6851] px-4 py-2 font-normal text-sm">
+                    OCCUPATION
+                  </th>
+                  <th className="border border-[#8D6851] px-4 py-2 font-normal text-sm">
+                    BEST TIME TO CALL
+                  </th>
+                  <th className="border border-[#8D6851] px-4 py-2 font-normal text-sm">
+                    WORK RELATIONSHIP <br /> (i.e. supervisor, co-worker)
+                  </th>
+                  <th className="border border-[#8D6851] px-4 py-2 font-normal text-sm">
+                    NUMBER OF YEARS KNOWN
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {[0, 1, 2, 3].map((index) => (
+                  <tr key={index}>
+                    <td className="border border-[#8D6851] px-4 py-4">
+                      <input
+                        type="text"
+                        {...register(`references.${index}.name`)}
+                        className="w-full bg-slate-900 text-white py-1 rounded focus:outline-none"
+                        placeholder="Enter name"
+                      />
+                    </td>
+                    <td className="border border-[#8D6851] px-4 py-2">
+                      <input
+                        type="text"
+                        {...register(`references.${index}.position`)}
+                        className="w-full bg-slate-900 text-white py-1 rounded focus:outline-none"
+                        placeholder="Enter position"
+                      />
+                    </td>
+                    <td className="border border-[#8D6851] px-4 py-2">
+                      <input
+                        type="text"
+                        {...register(`references.${index}.company`)}
+                        className="w-full bg-slate-900 text-white py-1 rounded focus:outline-none"
+                        placeholder="Enter company"
+                      />
+                    </td>
+                    <td className="border border-[#8D6851] px-4 py-2">
+                      <input
+                        type="text"
+                        {...register(`references.${index}.telephone`)}
+                        className="w-full bg-slate-900 text-white py-1 rounded focus:outline-none"
+                        placeholder="Enter telephone"
+                      />
+                    </td>
+                    <td className="border border-[#8D6851] px-4 py-2">
+                      <input
+                        type="text"
+                        {...register(`references.${index}.occupation`)}
+                        className="w-full bg-slate-900 text-white py-1 rounded focus:outline-none"
+                        placeholder="Enter occupation"
+                      />
+                    </td>
+                    <td className="border border-[#8D6851] px-4 py-2">
+                      <input
+                        type="text"
+                        {...register(`references.${index}.bestTimeToCall`)}
+                        className="w-full bg-slate-900 text-white py-1 rounded focus:outline-none"
+                        placeholder="Enter best time to call"
+                      />
+                    </td>
+                    <td className="border border-[#8D6851] px-4 py-2">
+                      <input
+                        type="text"
+                        {...register(`references.${index}.workRelationship`)}
+                        className="w-full bg-slate-900 text-white py-1 rounded focus:outline-none"
+                        placeholder="Enter work relationship"
+                      />
+                    </td>
+                    <td className="border border-[#8D6851] px-4 py-2">
+                      <input
+                        type="text"
+                        {...register(`references.${index}.yearsKnown`)}
+                        className="w-full bg-slate-900 text-white py-1 rounded focus:outline-none"
+                        placeholder="Enter years known"
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </form>
+          <div className="flex justify-center mt-12 gap-4">
+            <button
+              type="button"
+              onClick={prevStep}
+              className="px-6 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+            >
+              Previous
+            </button>
+
+            <button
+              type="button"
+              onClick={nextStepHandler}
+              className="px-6 py-2 bg-gradient-to-r from-[#8D6851] to-[#D3BFB2] text-white rounded-md hover:opacity-90"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default References;
