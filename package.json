@@ -17,7 +17,7 @@
     "axios": "^1.12.2",
     "date-fns": "^4.1.0",
     "html2canvas": "^1.4.1",
-    "jspdf": "^3.0.3",
+    "jspdf": "^4.2.1",
     "localforage": "^1.10.0",
     "lucide-react": "^0.544.0",
     "match-sorter": "^8.1.0",
@@ -31,9 +31,9 @@
     "react-pdf": "^10.2.0",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.9.1",
-    "react-to-pdf": "^2.0.1",
+    "react-to-pdf": "^3.2.2",
     "recharts": "^3.2.1",
-    "sort-by": "^1.2.0",
+    "sort-by": "^0.0.2",
     "tailwindcss": "^4.1.13"
   },
   "devDependencies": {
